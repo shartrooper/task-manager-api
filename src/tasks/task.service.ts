@@ -1,33 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { Task } from './task.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { TaskDocument, TaskResponse } from './schemas/task.schema';
+import { TaskDTO, Task } from './task.entity';
 
 @Injectable()
 export class TasksService {
-  private tasks: Task[] = []; // Temporary in-memory store
+  constructor(@InjectModel(Task.name) private taskModel: Model<TaskDocument>) {}
 
-  create(task: Task) {
-    this.tasks.push(task);
-    return task;
+  async create(task: TaskDTO): Promise<TaskResponse> {
+    const newTask = new this.taskModel(task);
+    await newTask.save();
+    return newTask.toJSON();
   }
 
-  findAll() {
-    return this.tasks;
+  async findAll(): Promise<TaskResponse[]> {
+    const tasks = await this.taskModel.find().exec();
+    return tasks.map((task) => task.toJSON());
   }
 
-  findOne(id: string) {
-    return this.tasks.find((task) => task.id === id);
+  async findOne(id: string): Promise<TaskResponse> {
+    const task = await this.taskModel.findById(id).exec();
+    return task.toJSON();
   }
 
-  update(id: string, task: Task) {
-    const index = this.tasks.findIndex((t) => t.id === id);
-    if (index > -1) {
-      this.tasks[index] = task;
-      return task;
-    }
-    return null;
+  async update(id: string, taskData: TaskDTO): Promise<TaskResponse> {
+    const updatedTask = await this.taskModel
+      .findByIdAndUpdate(id, taskData, { new: true })
+      .exec();
+    return updatedTask.toJSON();
   }
 
-  remove(id: string) {
-    this.tasks = this.tasks.filter((task) => task.id !== id);
+  async remove(id: string): Promise<any> {
+    await this.taskModel.findByIdAndDelete(id).exec();
+    return { id };
   }
 }
