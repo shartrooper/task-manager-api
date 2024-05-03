@@ -12,6 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: configService.get('AUTH0_SECRET'),
       audience: configService.get('AUTH0_AUDIENCE'),
       issuer: `https://${configService.get('AUTH0_DOMAIN')}/`,
+      algorithms: ['RS256'],
     });
   }
 
