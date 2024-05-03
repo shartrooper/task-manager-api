@@ -5,4 +5,4 @@ export class Task {
   isDone: boolean;
 }
 
-export interface TaskDTO extends Omit<Task, 'id'> {}
+export interface TaskDTO extends Omit<Task, 'id' | 'isDone'> {}

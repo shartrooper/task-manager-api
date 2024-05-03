@@ -9,7 +9,7 @@ export class TasksService {
   constructor(@InjectModel(Task.name) private taskModel: Model<TaskDocument>) {}
 
   async create(task: TaskDTO): Promise<TaskResponse> {
-    const newTask = new this.taskModel(task);
+    const newTask = new this.taskModel({ task, isDone: false });
     await newTask.save();
     return newTask.toJSON();
   }
@@ -34,5 +34,12 @@ export class TasksService {
   async remove(id: string): Promise<any> {
     await this.taskModel.findByIdAndDelete(id).exec();
     return { id };
+  }
+
+  async toggleDone(id: string): Promise<TaskResponse> {
+    const updatedTask = await this.taskModel
+      .findByIdAndUpdate(id, { isDone: true }, { new: true })
+      .exec();
+    return updatedTask.toJSON();
   }
 }

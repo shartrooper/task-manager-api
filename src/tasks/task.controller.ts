@@ -41,4 +41,9 @@ export class TasksController {
   remove(@Param('id') id: string) {
     return this.tasksService.remove(id);
   }
+
+  @Patch(':id')
+  toggleDone(@Param('id') id: string) {
+    return this.tasksService.toggleDone(id);
+  }
 }
